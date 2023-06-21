@@ -14,9 +14,8 @@ class OSCSender:
     def turn_right(self, degree: float):
         self.client.send_message("/turn/right", float(degree))
 
-    #float parameters are optional for these two functions
-    def take_screenshot(self, degree: float=0.0):
-        self.client.send_message("/take/screenshot", float(degree))
+    def take_screenshot(self, filename: str):
+        self.client.send_message("/screenshot", filename)
 
-    def reset_to_start(self, degree: float=0.):
-        self.client.send_message("/return/start", float(degree))
+    def reset_to_start(self):
+        self.client.send_message("/reset")
