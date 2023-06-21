@@ -8,6 +8,11 @@ class OSCSender:
     def move_forward(self, amount: float):
         self.client.send_message("/move/forward", float(amount))
 
+
+    def dummy(self):
+        pass
+
+
     # Turn right
     # Turn left
     # Take screenshot
