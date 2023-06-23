@@ -18,4 +18,4 @@ class OSCSender:
         self.client.send_message("/screenshot", filename)
 
     def reset_to_start(self):
-        self.client.send_message("/reset")
+        self.client.send_message("/reset", 0.0)
