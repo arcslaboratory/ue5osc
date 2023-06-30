@@ -1,66 +1,69 @@
 from pythonosc import udp_client
 from time import sleep
-
-from ue5osc.osc_dispatcher import DispatchHandler
+from ue5osc.osc_dispatcher import OSCMessageReceiver
 from pythonosc.osc_server import BlockingOSCUDPServer
 from PIL import Image
+import threading
 
 import matplotlib.pyplot as plt
 
 
-class OSCSender:
+class Communicator:
     """Handles interaction between the UE5 environment and the a program."""
 
-    # Initializing the OSC communicator
-    def __init__(self, ip: str, port: int, directory: str):
+    def __init__(self, ip: str, client_port: int, server_port: int, directory: str):
+        "Initialize OSC server"
         self.path = directory
-        self.location_handler = DispatchHandler()
-        self.client = udp_client.SimpleUDPClient(ip, port)
-        self.server = BlockingOSCUDPServer((ip, 7001), self.location_handler.dispatcher)
         self.imgnumber = 0
+        self.file_path = self.path + "/Image_" + str(self.imgnumber)
 
-    # Starts the OSC server
+        self.location_handler = OSCMessageReceiver()
+        self.client = udp_client.SimpleUDPClient(ip, client_port)
+        self.server = BlockingOSCUDPServer(
+            (ip, server_port), self.location_handler.dispatcher
+        )
+
     def start_server(self):
         self.server.serve_forever()
 
     def get_project_name(self):
         """Returns the name of the current connected project."""
         self.client.send_message("/get/project", 0.0)
-        self.location_handler.delay("Project")
-        name = self.location_handler.project_name
-        self.location_handler.project_name = None
+        self.location_handler.wait()
+        name = self.location_handler.values
+        self.location_handler.values = None
         return name
 
-    def get_player_location(self, pawn: int = 0) -> tuple[float, float, float]:
+    def get_player_location(self, pawn: int = 0) -> list[float, float, float]:
         """Returns x, y, z location of the player in the Unreal Environment."""
         self.client.send_message("/get/location", 0.0)
-        self.location_handler.delay("Location")
-        x, y, z = self.location_handler.location_values
-        self.location_handler.location_values = None
+        self.location_handler.wait()
+        x, y, z = self.location_handler.values
+        self.location_handler.values = None
         return float(x), float(y), float(z)
 
     def set_player_location(self, x: float, y: float, z: float, pawn: int = 0):
         """Sets X, Y, and Z values of an Unreal Camera."""
-        self.client.send_message("/set/location", f"{x}, {y}, {z}")
+        self.client.send_message("/set/location", [x, y, z])
 
-    def get_player_rotation(self, pawn: int = 0) -> tuple[float, float, float]:
+    def get_player_rotation(self, pawn: int = 0) -> list[float, float, float]:
         """Returns pitch, yaw, and roll."""
         self.client.send_message("/get/rotation", 0.0)
-        self.location_handler.delay("Rotation")
-        roll, pitch, yaw = self.location_handler.rotation_values
-        self.location_handler.rotation_values = None
+        self.location_handler.wait()
+        roll, pitch, yaw = self.location_handler.values
+        self.location_handler.values = None
         return float(roll), float(pitch), float(yaw)
 
     def set_player_yaw(self, yaw: float, pawn: int = 0):
         """Set the camera yaw in degrees."""
         ue_roll, ue_pitch, _ = self.get_player_rotation()
-        self.client.send_message("/set/rotation", f"{ue_pitch}, {ue_roll}, {yaw}")
+        self.client.send_message("/set/rotation", [ue_pitch, ue_roll, yaw])
 
     def __rotate(self, rotation: float, pawn: int = 0):
         """Rotate player a number of degrees."""
         ue_roll, ue_pitch, ue_yaw = self.get_player_rotation()
         yaw = float(ue_yaw) + rotation
-        self.ue5.request("/set/rotation", f"{ue_pitch}, {ue_roll}, {yaw}")
+        self.client.send_message("/turn/left", yaw)
 
     def move_forward(self, amount: float):
         """Move Robot forwards."""
@@ -78,16 +81,15 @@ class OSCSender:
         """move Robot backwards."""
         self.client.send_message("/move/forward", float(-amount))
 
-    # TODO: Find a way to request and save images
     def save_image(self, pawn: int = 0) -> None:
         """Screenshot with default name"""
-        self.client.send_message("/save/image", self.path)
         self.imgnumber += 1
+        self.client.send_message("/save/image", self.file_path)
         sleep(1)
 
     def request_image(self, pawn: int = 0) -> bytes:
         """request image we saved"""
-        image = Image.open(f"{self.path}/Image_{self.imgnumber}.png")
+        image = Image.open(self.file_path)
         return image
 
     def show(self):

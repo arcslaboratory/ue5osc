@@ -4,46 +4,26 @@ from pythonosc.osc_server import BlockingOSCUDPServer
 from pythonosc.udp_client import SimpleUDPClient
 from time import sleep
 
-# import threading
 
-# functions inside dispatcher to clean up the code
-# request/save image
-
-
-class DispatchHandler:
+class OSCMessageReceiver:
     def __init__(self):
-        # Initialize attributes
-        self.location_values = None
-        self.rotation_values = None
-        self.project_name = None
+        self.values = None
         self.dispatcher = Dispatcher()
 
-        # Define valid commands
-        self.commands = ["/location", "/rotation", "/project"]
-
         # Map commands to the set_filter method
-        self.dispatcher.map("/location*", self.set_filter)
-        self.dispatcher.map("/rotation*", self.set_filter)
-        self.dispatcher.map("/project*", self.set_filter)
+        self.dispatcher.map("/location", self.handle_location)
+        self.dispatcher.map("/rotation", self.handle_rotation)
+        self.dispatcher.map("/project", self.handle_project)
+        self.dispatcher.set_default_handler(self.handle_invalid_command)
 
-    def set_filter(self, address: str, *args: List[Any]) -> None:
-        # We expect three float arguments; otherwise, we return early and end
-        if address not in self.commands:
-            return
-
+    def handle_location(self, address: str, *args: List[Any]):
+        # Logic to handle location path
+        # Split the string argument into three float values
         if address == "/location":
-            # Check if the argument is a string
-            if type(args[0]) is not str:
-                return
-            else:
-                try:
-                    # Split the string argument into three float values
-                    location_values = args[0].split(",")
-                    x, y, z = map(float, location_values)
-                except ValueError:
-                    return
+            values = args[0].split(",")
+            x, y, z = map(float, values)
             if (
-                not len(location_values) == 3
+                not len(values) == 3
                 or type(x) is not float
                 or type(y) is not float
                 or type(z) is not float
@@ -54,51 +34,46 @@ class DispatchHandler:
             value2 = y
             value3 = z
             print(f"Getting location values: x: {value1}, y: {value2}, z: {value3}")
-            self.location_values = [value1, value2, value3]
-            return self.location_values
-        elif address == "/rotation":
-            # Check if the argument is a string
-            if type(args[0]) is not str:
-                return
-            else:
-                try:
-                    # Split the string argument into three float values
-                    rotation_values = args[0].split(",")
-                    pitch, roll, yaw = map(float, rotation_values)
-                except ValueError:
-                    return
+            self.values = [value1, value2, value3]
+            return self.values
+
+    def handle_rotation(self, address: str, *args: List[Any]):
+        if address == "/rotation":
+            values = args[0].split(",")
+            roll, pitch, yaw = list(map(float, values))
             if (
-                not len(rotation_values) == 3
-                or type(pitch) is not float
+                not len(values) == 3
                 or type(roll) is not float
+                or type(pitch) is not float
                 or type(yaw) is not float
             ):
                 return
             # Assign rotation values
-            value1 = pitch
-            value2 = roll
+            value1 = roll
+            value2 = pitch
             value3 = yaw
             print(
                 f"Getting rotation values: pitch: {value1}, roll: {value2}, yaw: {value3}"
             )
-            self.rotation_values = [value1, value2, value3]
-            return self.rotation_values
+            self.values = [value1, value2, value3]
+            return self.values
 
-        # Checking if the project name is correctly passed as one string
-        elif address == "/project":
-            # Check if there is a single string argument
+    def handle_project(self, address: str, *args: List[Any]):
+        if address == "/project":
+            # Logic to handle project path
             if not len(args) == 1 or type(args[0]) is not str:
                 return
             name = args[0]
             print(f"Scene name: {name}")
-            self.project_name = name
-            return self.project_name
+            self.values = name
+            return self.values
 
-    def delay(self, value):
+    def handle_invalid_command(self, address, *args):
+        # Logic to handle invalid commands
+        print(f"Invalid command: {address}")
+        return None
+
+    def wait(self):
         # Delay between each value returned
-        while not self.location_values and value == "Location":
-            sleep(0.01)
-        while not self.rotation_values and value == "Rotation":
-            sleep(0.01)
-        while not self.rotation_values and value == "Project":
+        while not self.values:
             sleep(0.01)
