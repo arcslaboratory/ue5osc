@@ -4,6 +4,7 @@ from time import sleep
 from PIL import Image
 from pythonosc import udp_client
 from pythonosc.osc_server import BlockingOSCUDPServer
+import threading
 
 from ue5osc.osc_dispatcher import OSCMessageReceiver
 
@@ -17,13 +18,22 @@ class Communicator:
         self.img_number = 0
 
         self.message_handler = OSCMessageReceiver()
-        self.client = udp_client.SimpleUDPClient(ip, client_port)
         self.server = BlockingOSCUDPServer(
             (ip, server_port), self.message_handler.dispatcher
         )
+        self.client = udp_client.SimpleUDPClient(ip, client_port)
 
-    def start_server(self):
-        self.server.serve_forever()
+        self.server_thread = threading.Thread(target=self.server.serve_forever)
+        print(f"Server is Listening to {ip}:{server_port} ...")
+        self.server_thread.start()
+
+    def close_osc(self):
+        """Closes the OSC server and joins the server."""
+        print("Closing the server...")
+        sleep(1)
+        self.server.shutdown()
+        self.server_thread.join()
+        print("Server Closed")
 
     def send_and_wait(self, osc_address: str) -> object:
         """Sends command and waits for a return value before continuing."""
@@ -31,41 +41,27 @@ class Communicator:
         self.client.send_message(osc_address, dummy_data)
         return self.message_handler.wait_for_response()
 
-    def get_project_name(self, print_val: bool = False):
+    def get_project_name(self) -> str:
         """Returns and optionally prints the name of the current connected project."""
-        values = self.send_and_wait("/get/project")
-        if print_val:
-            self.print_values("project", values)
-        return values
+        return self.send_and_wait("/get/project")
 
-    def get_player_location(self, print_val: bool = False) -> list[float, float, float]:
+    def get_player_location(self, pawn: int = 0) -> list[float, float, float]:
         """Returns x, y, z location of the player in the Unreal Environment and optionally prints."""
-        values = self.send_and_wait("/get/location")
-        if print_val:
-            self.print_values("location", values)
-        return values
+        return self.send_and_wait("/get/location")
 
-    def set_player_location(self, x: float, y: float, z: float):
+    def set_player_location(self, x: float, y: float, z: float, pawn: int = 0):
         """Sets X, Y, and Z values of an Unreal Camera."""
         self.client.send_message("/set/location", [x, y, z])
 
-    def get_player_rotation(self, print_val: bool = False) -> list[float, float, float]:
+    def get_player_rotation(self, pawn: int = 0) -> list[float, float, float]:
         """Returns pitch, yaw, and roll and can optionally print."""
-        values = self.send_and_wait("/get/rotation")
-        if print_val:
-            self.print_values("rotation", values)
-        return values
+        return self.send_and_wait("/get/rotation")
 
     def set_player_yaw(self, yaw: float, pawn: int = 0):
         """Set the camera yaw in degrees."""
+        # Pawn is a variable used to assign what player we will be controlling in the future
         ue_roll, ue_pitch, _ = self.get_player_rotation()
         self.client.send_message("/set/rotation", [ue_pitch, ue_roll, yaw])
-
-    def __rotate(self, rotation: float, pawn: int = 0):
-        """Rotate player a number of degrees."""
-        ue_roll, ue_pitch, ue_yaw = self.get_player_rotation()
-        yaw = float(ue_yaw) + rotation
-        self.client.send_message("/turn/left", yaw)
 
     def move_forward(self, amount: float):
         """Move robot forward."""
@@ -85,10 +81,11 @@ class Communicator:
 
     def save_image(self) -> None:
         """Takes screenshot with the default name"""
-        file_path = self.path / f"{self.img_number:06}"
+        self.file_path = self.path / f"{self.img_number:06}"
         self.img_number += 1
-        self.client.send_message("/save/image", file_path)
-        sleep(1)
+        # Unreal Engine Needs a forward / to separate folder from the filenames
+        self.client.send_message("/save/image", f"{self.path}/{self.img_number:06}")
+        sleep(1.5)
 
     def request_image(self) -> bytes:
         """Requests the image we saved."""
@@ -108,16 +105,4 @@ class Communicator:
     def reset_to_start(self):
         """Reset agent to the start location using a UE Blueprint command."""
         self.client.send_message("/reset", 0.0)
-
-    def print_values(self, address: str, values: tuple):
-        """Helper Function that allows optional printing of return values."""
-        if address == "location":
-            print(
-                f"Getting location values: x: {values[0]}, y: {values[1]}, z: {values[2]}"
-            )
-        elif address == "rotation":
-            print(
-                f"Getting rotation values: roll: {values[0]}, pitch: {values[1]}, yaw: {values[2]}"
-            )
-        else:
-            print(f"Getting project name: {values}")
+        sleep(1)

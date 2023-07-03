@@ -24,20 +24,14 @@ class OSCMessageReceiver:
         if address == "/location":
             # Split the string argument into three float values
             values = args[0].split(",")
-            try:
-                x, y, z = map(float, values)
-            except ValueError or len(x, y, z == 3):
-                return
+            x, y, z = map(float, values)
             self.values = x, y, z
             return self.values
 
     def handle_rotation(self, address: str, *args: List[Any]):
         if address == "/rotation":
             values = args[0].split(",")
-            try:
-                roll, pitch, yaw = map(float, values)
-            except ValueError:
-                return
+            roll, pitch, yaw = map(float, values)
             self.values = roll, pitch, yaw
             return self.values
 
@@ -50,11 +44,11 @@ class OSCMessageReceiver:
             return self.values
 
     def handle_invalid_command(self, address, *args):
-        # Logic to handle invalid commands
+        # Logic to handle invalid commands with an exception.
         print(f"Invalid command: {address}")
-        return None
+        raise Exception(f"Invalid command: {address}")
 
-    def wait_for_response(self):
+    def wait_for_response(self) -> object:
         """We wait for values to get assigned and then reset values to None for next check."""
         while not self.values:
             sleep(0.01)

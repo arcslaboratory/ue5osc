@@ -1,4 +1,3 @@
-import threading
 from argparse import ArgumentParser
 from time import sleep
 
@@ -13,33 +12,22 @@ def main():
     )
     args = parser.parse_args()
 
-    # Setting variables for consol and client"
+    # Setting variables for server and client"
     ip = "127.0.0.1"
     client_port = 7447
     server_port = 7001
 
     osc_communicator = ue5osc.Communicator(ip, client_port, server_port, args.path)
 
-    # Start thread to allow the server to not run indefinitely
-    server_thread = threading.Thread(target=osc_communicator.start_server)
-    print(f"Server is Listening to {ip}:{server_port} ...")
-    server_thread.start()
-
-    # TODO: We print the rotation values
-    osc_communicator.get_player_location(True)
+    print(osc_communicator.get_player_location()[0])
     sleep(1)
-    osc_communicator.get_player_rotation(True)
+    print(osc_communicator.get_player_rotation())
     sleep(1)
-    osc_communicator.get_project_name(True)
+    print(osc_communicator.get_project_name())
     sleep(1)
 
-    # Shut down the server and join the server thread
-    sleep(3)
-    print("Closing the server...")
-    sleep(1)
-    osc_communicator.server.shutdown()
-    server_thread.join()
-    print("Server Closed")
+    sleep(4)
+    osc_communicator.close_osc()
 
 
 # Calling main function
