@@ -54,7 +54,7 @@ class OSCMessageReceiver:
         print(f"Invalid command: {address}")
         return None
 
-    def wait_for_response(self):
+    def wait_for_response(self) -> object:
         """We wait for values to get assigned and then reset values to None for next check."""
         while not self.values:
             sleep(0.01)
