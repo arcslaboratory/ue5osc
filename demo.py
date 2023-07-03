@@ -1,8 +1,8 @@
-from time import sleep
 import threading
-import ue5osc
-import sys
 from argparse import ArgumentParser
+from time import sleep
+
+import ue5osc
 
 
 def main():
@@ -18,30 +18,26 @@ def main():
     client_port = 7447
     server_port = 7001
 
-    osc_sender = ue5osc.Communicator(ip, client_port, server_port, args.path)
+    osc_communicator = ue5osc.Communicator(ip, client_port, server_port, args.path)
 
-    # start thread to allow the server to not run indefinitely
-    server_thread = threading.Thread(target=osc_sender.start_server)
-    print(f"Server is Listening to {ip}:7001 ...")
+    # Start thread to allow the server to not run indefinitely
+    server_thread = threading.Thread(target=osc_communicator.start_server)
+    print(f"Server is Listening to {ip}:{server_port} ...")
     server_thread.start()
 
-    osc_sender.get_player_location()
+    # TODO: We print the rotation values
+    osc_communicator.get_player_location(True)
     sleep(1)
-    osc_sender.move_forward(90.0)
+    osc_communicator.get_player_rotation(True)
     sleep(1)
-    osc_sender.set_player_location(34.0, 200.0, 4.0)
+    osc_communicator.get_project_name(True)
     sleep(1)
-    osc_sender.set_player_yaw(30.0)
-    sleep(1)
-    osc_sender.get_player_location()
-    sleep(1)
-    osc_sender.get_player_rotation
 
     # Shut down the server and join the server thread
-    sleep(13)
+    sleep(3)
     print("Closing the server...")
     sleep(1)
-    osc_sender.server.shutdown()
+    osc_communicator.server.shutdown()
     server_thread.join()
     print("Server Closed")
 
