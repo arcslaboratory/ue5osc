@@ -1,7 +1,6 @@
 from pathlib import Path
 from time import sleep
 
-from PIL import Image
 from pythonosc import udp_client
 from pythonosc.osc_server import BlockingOSCUDPServer
 import threading
@@ -21,21 +20,18 @@ class Communicator:
         self.server_port = server_port
 
         self.message_handler = OSCMessageReceiver()
-        self.init_osc()
-
-    def __enter__(self) -> None:
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
-        self.close_osc()
-
-    def init_osc(self) -> None:
         self.server = BlockingOSCUDPServer(
             (self.ip, self.server_port), self.message_handler.dispatcher
         )
         self.client = udp_client.SimpleUDPClient(self.ip, self.client_port)
         self.server_thread = threading.Thread(target=self.server.serve_forever)
         self.server_thread.start()
+
+    def __enter__(self) -> None:
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        self.close_osc()
 
     def close_osc(self) -> None:
         """Closes the OSC server and joins the server."""
@@ -52,63 +48,63 @@ class Communicator:
         """Returns and optionally prints the name of the current connected project."""
         return self.send_and_wait("/get/project")
 
-    def get_player_location(self) -> list[float, float, float]:
+    def get_location(self) -> list[float, float, float]:
         """Returns x, y, z location of the player in the Unreal Environment"""
         return self.send_and_wait("/get/location")
 
-    def set_player_location(self, x: float, y: float, z: float) -> None:
+    def set_location(self, x: float, y: float, z: float) -> None:
         """Sets X, Y, and Z values of an Unreal Camera."""
         self.client.send_message("/set/location", [x, y, z])
 
-    def get_player_rotation(self) -> list[float, float, float]:
+    def get_rotation(self) -> list[float, float, float]:
         """Returns pitch, yaw, and roll"""
         return self.send_and_wait("/get/rotation")
 
-    def set_player_yaw(self, yaw: float) -> None:
+    def set_yaw(self, yaw: float) -> None:
         """Set the camera yaw in degrees."""
-        ue_roll, ue_pitch, _ = self.get_player_rotation()
+        ue_roll, ue_pitch, _ = self.get_rotation()
         self.client.send_message("/set/rotation", [ue_pitch, ue_roll, yaw])
 
     def move_forward(self, amount: float) -> None:
         """Move robot forward."""
         self.client.send_message("/move/forward", float(amount))
 
-    def turn_left(self, degree: float) -> None:
-        """Turn robot left."""
-        self.client.send_message("/turn/left", float(degree))
+    def rotate_left(self, degree: float) -> None:
+        """Rotate robot left."""
+        self.client.send_message("/rotate/left", float(degree))
 
-    def turn_right(self, degree: float) -> None:
-        """Turn robot right."""
-        self.client.send_message("/turn/right", float(degree))
+    def rotate_right(self, degree: float) -> None:
+        """Rotate robot right."""
+        self.client.send_message("/rotate/right", float(degree))
 
     def move_backward(self, amount: float) -> None:
-        """Moverobot backwards."""
+        """Move robot backwards."""
         self.client.send_message("/move/forward", float(-amount))
 
-    def save_image(self) -> None:
-        """Takes screenshot with the default name"""
+    def save_image(self, filename: str = None) -> None:
+        """Takes screenshot with the default name."""
         self.img_number += 1
+        filename = filename if filename else f"{self.path}/{self.img_number:06}"
         # Unreal Engine Needs a forward / to separate folder from the filenames
-        self.client.send_message("/save/image", f"{self.path}/{self.img_number:06}")
+        self.client.send_message("/save/image", filename)
         sleep(1.5)
 
-    def request_image(self) -> bytes:
+    def get_image(self, filename: str = None) -> bytes:
         """Requests the image we saved."""
-        self.file_path = self.path / f"{self.img_number:06}"
-        image = Image.open(self.file_path)
+        from PIL import Image
+
+        filename = filename if filename else f"{self.path}/{self.img_number:06}"
+        image = Image.open(filename)
         return image
 
-    def show(self) -> None:
+    def show_image(self) -> None:
         """If matplotlib is being used, show the image taken to the plot"""
         import matplotlib.pyplot as plt
 
-        plt.imshow(self.request_image())
+        plt.imshow(self.get_image())
 
-    def take_screenshot(self, filename: str) -> None:
-        """Save a screenshot with a unique name"""
-        self.client.send_message("/screenshot", filename)
-
-    def reset_to_start(self) -> None:
+    def reset(self) -> None:
         """Reset agent to the start location using a UE Blueprint command."""
+        # The python OSC library send_message method always requires a value
         self.client.send_message("/reset", 0.0)
         sleep(1)

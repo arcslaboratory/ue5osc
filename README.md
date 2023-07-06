@@ -1,2 +1,11 @@
 # ue5osc
-Send OSC messages from a Python script to Unreal Engine 5
+
+This is a wrapper for communicating commands to Unreal Engine 5+ using OSC.
+
+To install the package locally:
+
+```bash
+# First activate the virtual environment
+conda activate ...
+python -m pip install --editable .
+```
