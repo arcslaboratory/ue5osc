@@ -50,10 +50,13 @@ class OSCMessageReceiver:
         print(f"Invalid command: {address}")
         raise Exception(f"Invalid command: {address}")
 
-    def wait_for_response(self) -> object:
+    def wait_for_response(self, timeout: float=1.0) -> object:
         """We wait for values to get assigned and then reset values to None for next check."""
-        while not self.values:
-            sleep(0.01)
+        time_spent_waiting = 0
+        time_delta = 0.01
+        while not self.values and time_spent_waiting < timeout:
+            sleep(time_delta)
+            time_spent_waiting += time_delta
         response = self.values
         self.values = None
         return response

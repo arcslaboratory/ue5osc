@@ -1,7 +1,6 @@
 from pathlib import Path
 from time import sleep
 
-from PIL import Image
 from pythonosc import udp_client
 from pythonosc.osc_server import BlockingOSCUDPServer
 import threading
@@ -94,6 +93,7 @@ class Communicator:
 
     def request_image(self) -> bytes:
         """Requests the image we saved."""
+        from PIL import Image
         self.file_path = self.path / f"{self.img_number:06}"
         image = Image.open(self.file_path)
         return image
