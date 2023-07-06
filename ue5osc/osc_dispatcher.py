@@ -28,14 +28,16 @@ class OSCMessageReceiver:
             self.values = x, y, z
             return self.values
 
-    def handle_rotation(self, address: str, *args: List[Any]):
+    def handle_rotation(
+        self, address: str, *args: List[Any]
+    ) -> tuple[float, float, float]:
         if address == "/rotation":
             values = args[0].split(",")
             roll, pitch, yaw = map(float, values)
             self.values = roll, pitch, yaw
             return self.values
 
-    def handle_project(self, address: str, *args: List[Any]):
+    def handle_project(self, address: str, *args: List[Any]) -> str:
         if address == "/project":
             # Logic to handle the project path
             if not len(args) == 1 or type(args[0]) is not str:
@@ -43,7 +45,7 @@ class OSCMessageReceiver:
             self.values = args[0]
             return self.values
 
-    def handle_invalid_command(self, address, *args):
+    def handle_invalid_command(self, address, *args) -> None:
         # Logic to handle invalid commands with an exception.
         print(f"Invalid command: {address}")
         raise Exception(f"Invalid command: {address}")
