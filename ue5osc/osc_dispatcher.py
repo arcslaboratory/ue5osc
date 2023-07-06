@@ -47,8 +47,7 @@ class OSCMessageReceiver:
 
     def handle_invalid_command(self, address, *args) -> None:
         # Logic to handle invalid commands with an exception.
-        print(f"Invalid command: {address}")
-        raise Exception(f"Invalid command: {address}")
+        raise TypeError(f"Invalid command: {address}")
 
     def wait_for_response(self, timeout: float=1.0) -> object:
         """We wait for values to get assigned and then reset values to None for next check."""
@@ -58,5 +57,6 @@ class OSCMessageReceiver:
             sleep(time_delta)
             time_spent_waiting += time_delta
         response = self.values
+        if response is None: raise TimeoutError("No response from Unreal Engine")
         self.values = None
         return response
