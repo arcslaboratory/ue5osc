@@ -81,6 +81,10 @@ class Communicator:
         """Move robot backwards."""
         self.client.send_message("/move/forward", float(-amount))
 
+    def set_res(self, res: list) -> None:
+        """Allows you to set resolution of images."""
+        self.client.send_message("/set/res", res)
+
     def save_image(self, filename: str = None) -> None:
         """Takes screenshot with the default name."""
         self.img_number += 1
