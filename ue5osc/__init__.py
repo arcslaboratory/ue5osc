@@ -86,7 +86,7 @@ class Communicator:
         self.img_number += 1
         filename = filename if filename else f"{self.path}/{self.img_number:06}"
         # Unreal Engine Needs a forward / to separate folder from the filenames
-        self.client.send_message("/save/image", filename)
+        self.client.send_message("/save/image", str(filename))
         sleep(1.5)
 
     def get_image(self, filename: str = None) -> bytes:
