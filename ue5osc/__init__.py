@@ -89,6 +89,14 @@ class Communicator:
         self.client.send_message("/save/image", str(filename))
         sleep(1.5)
 
+    def save_image_macos(self, filename: str = None) -> None:
+        """Takes screenshot for MacOS with the default name."""
+        self.img_number += 1
+        filename =  f"{self.path}/{filename}" if filename else f"{self.path}/{self.img_number:06}"
+        # Unreal Engine Needs a forward / to separate folder from the filenames
+        self.client.send_message("/save/image", str(filename))
+        sleep(1.5)
+
     def get_image(self, filename: str = None) -> bytes:
         """Requests the image we saved."""
         from PIL import Image
