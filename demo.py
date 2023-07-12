@@ -18,9 +18,9 @@ def main():
     with ue5osc.Communicator(
         args.ip, args.client_port, args.server_port, args.path
     ) as osc_communicator:
-        print(osc_communicator.get_player_location()[0])
+        print(osc_communicator.get_location()[0])
         sleep(1)
-        print(osc_communicator.get_player_rotation())
+        print(osc_communicator.get_rotation())
         sleep(1)
         print(osc_communicator.get_project_name())
         sleep(1)
