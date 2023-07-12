@@ -86,6 +86,7 @@ class Communicator:
     def save_image(self, filename: str) -> None:
         """Takes screenshot with the default name."""
         # Unreal Engine Needs a forward / to separate folder from the filenames
+        filename = "/".join(filename.rsplit("\\", 1))
         self.client.send_message("/save/image", str(filename))
         sleep(1.5)
 
