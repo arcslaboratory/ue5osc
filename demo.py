@@ -9,8 +9,9 @@ def main():
     optional ability to set ip and ports."""
     parser = ArgumentParser()
     parser.add_argument("--ip", type=str, default="127.0.0.1", help="IP Address")
-    parser.add_argument("--client_port", type=int, default=7447, help="Client Port")
-    parser.add_argument("--server_port", type=int, default=7001, help="Server Port")
+    parser.add_argument("--ue_port", type=int, default=7447, help="UE server port.")
+    parser.add_argument("--py_port", type=int, default=7001, help="Python server port.")
+
     parser.add_argument("--resolution", type=list, help="Set resolution of images.")
     args = parser.parse_args()
 
