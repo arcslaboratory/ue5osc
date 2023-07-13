@@ -12,14 +12,14 @@ def main():
     parser.add_argument("--ue_port", type=int, default=7447, help="UE server port.")
     parser.add_argument("--py_port", type=int, default=7001, help="Python server port.")
 
-    parser.add_argument("--resolution", type=list, help="Set resolution of images.")
     args = parser.parse_args()
 
     with ue5osc.Communicator(
-        args.ip, args.client_port, args.server_port, 
+        args.ip,
+        args.ue_port,
+        args.py_port,
     ) as osc_communicator:
         print(osc_communicator.get_location())
-
         sleep(1)
         print(osc_communicator.get_rotation())
         sleep(1)
