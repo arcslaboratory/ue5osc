@@ -12,13 +12,13 @@ def main():
     parser.add_argument("--ip", type=str, default="127.0.0.1", help="IP Address")
     parser.add_argument("--client_port", type=int, default=7447, help="Client Port")
     parser.add_argument("--server_port", type=int, default=7001, help="Server Port")
-    parser.add_argument("--resolution", type=list, help="Set resolution of images.")
+    parser.add_argument("--resolution", type=str, help="Set resolution of images.")
     args = parser.parse_args()
 
     with ue5osc.Communicator(
         args.ip, args.client_port, args.server_port, args.path
     ) as osc_communicator:
-        print(osc_communicator.get_location()[0])
+        print(osc_communicator.get_location())
         sleep(1)
         print(osc_communicator.get_rotation())
         sleep(1)
