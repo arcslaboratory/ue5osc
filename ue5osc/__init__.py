@@ -1,4 +1,3 @@
-from pathlib import Path
 from time import sleep
 
 from pythonosc import udp_client
@@ -9,7 +8,7 @@ from ue5osc.osc_dispatcher import OSCMessageReceiver
 
 
 class Communicator:
-    """This handles interaction between the UE5 environment and the a program."""
+    """This handles interaction between the UE5 environment and a Python script."""
 
     def __init__(self, ip: str, ue_port: int, py_port: int):
         """Initialize OSC client and server."""
@@ -79,9 +78,9 @@ class Communicator:
         """Move robot backwards."""
         self.client.send_message("/move/forward", float(-amount))
 
-    def set_res(self, res: str) -> None:
+    def set_resolution(self, res: str) -> None:
         """Allows you to set resolution of images in the form of ResXxResY ."""
-        self.client.send_message("/set/res", res)
+        self.client.send_message("/set/resolution", res)
 
     def save_image(self, filename: str) -> None:
         """Takes screenshot with the default name."""
