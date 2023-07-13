@@ -17,7 +17,8 @@ def main():
     with ue5osc.Communicator(
         args.ip, args.client_port, args.server_port, 
     ) as osc_communicator:
-        print(osc_communicator.get_location()[0])
+        print(osc_communicator.get_location())
+
         sleep(1)
         print(osc_communicator.get_rotation())
         sleep(1)
