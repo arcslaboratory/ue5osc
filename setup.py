@@ -7,6 +7,6 @@ setup(
     author="Anthony J. Clark, Anjali Nuggehalli, and Francisco Morales Puente",
     license="MIT",
     packages=["ue5osc"],
-    requires=["pythonosc"],
+    install_requires=["python-osc"],
     zip_safe=False,
 )
