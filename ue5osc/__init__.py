@@ -1,8 +1,8 @@
+import threading
 from time import sleep
 
 from pythonosc import udp_client
 from pythonosc.osc_server import BlockingOSCUDPServer
-import threading
 
 from ue5osc.osc_dispatcher import OSCMessageReceiver
 
@@ -35,7 +35,7 @@ class Communicator:
         self.server.shutdown()
         self.server_thread.join()
 
-    def send_and_wait(self, osc_address: str) -> object:
+    def send_and_wait(self, osc_address: str) -> str|tuple[float,float,float]:
         """Sends command and waits for a return value before continuing."""
         dummy_data = 0.0
         self.client.send_message(osc_address, dummy_data)
@@ -45,7 +45,7 @@ class Communicator:
         """Returns and optionally prints the name of the current connected project."""
         return self.send_and_wait("/get/project")
 
-    def get_location(self) -> list[float, float, float]:
+    def get_location(self) -> tuple[float, float, float]:
         """Returns x, y, z location of the player in the Unreal Environment"""
         return self.send_and_wait("/get/location")
 
@@ -53,7 +53,7 @@ class Communicator:
         """Sets X, Y, and Z values of an Unreal Camera."""
         self.client.send_message("/set/location", [x, y, z])
 
-    def get_rotation(self) -> list[float, float, float]:
+    def get_rotation(self) -> tuple[float, float, float]:
         """Returns pitch, yaw, and roll"""
         return self.send_and_wait("/get/rotation")
 
@@ -95,12 +95,6 @@ class Communicator:
 
         image = Image.open(filename)
         return image
-
-    def show_image(self) -> None:
-        """If matplotlib is being used, show the image taken to the plot"""
-        import matplotlib.pyplot as plt
-
-        plt.imshow(self.get_image())
 
     def reset(self) -> None:
         """Reset agent to the start location using a UE Blueprint command."""
