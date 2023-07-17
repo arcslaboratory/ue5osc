@@ -35,7 +35,7 @@ class Communicator:
         self.server.shutdown()
         self.server_thread.join()
 
-    def send_and_wait(self, osc_address: str) -> str|tuple[float,float,float]:
+    def send_and_wait(self, osc_address: str) -> str | tuple[float, float, float]:
         """Sends command and waits for a return value before continuing."""
         dummy_data = 0.0
         self.client.send_message(osc_address, dummy_data)
@@ -95,6 +95,18 @@ class Communicator:
 
         image = Image.open(filename)
         return image
+
+    def console(self, message: str) -> None:
+        """Sends messages to be executed in Unreal Engine's console"""
+        self.client.send_message("/console", message)
+
+    def switch_camera(self) -> None:
+        """Switches between camera views. One where the robot is visible or not"""
+        self.client.send_message("/switch/view", 0.0)
+
+    def quality(self, graphics_level: int) -> None:
+        """Sets the Game Graphics Settings. Takes an int between 0-4 where 0 is the lowest"""
+        self.client.send_message("/quality", graphics_level)
 
     def reset(self) -> None:
         """Reset agent to the start location using a UE Blueprint command."""
