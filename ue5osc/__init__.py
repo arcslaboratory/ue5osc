@@ -46,7 +46,7 @@ class Communicator:
         return self.send_and_await("/get/project")
 
     def get_location(self) -> tuple[float, float, float]:
-        """Returns x, y, z location of the player in the Unreal Environment"""
+        """Returns x, y, z location of the player in the Unreal Environment."""
         return self.send_and_await("/get/location")
 
     def set_location(self, x: float, y: float, z: float) -> None:
@@ -54,7 +54,7 @@ class Communicator:
         self.client.send_message("/set/location", [x, y, z])
 
     def get_rotation(self) -> tuple[float, float, float]:
-        """Returns pitch, yaw, and roll"""
+        """Returns pitch, yaw, and roll."""
         return self.send_and_await("/get/rotation")
 
     def set_yaw(self, yaw: float) -> None:
@@ -66,6 +66,10 @@ class Communicator:
         """Move robot forward."""
         self.client.send_message("/move/forward", float(amount))
 
+    def move_backward(self, amount: float) -> None:
+        """Move robot backwards."""
+        self.client.send_message("/move/forward", float(-amount))
+
     def rotate_left(self, degree: float) -> None:
         """Rotate robot left."""
         self.client.send_message("/rotate/left", float(degree))
@@ -74,23 +78,18 @@ class Communicator:
         """Rotate robot right."""
         self.client.send_message("/rotate/right", float(degree))
 
-    def move_backward(self, amount: float) -> None:
-        """Move robot backwards."""
-        self.client.send_message("/move/forward", float(-amount))
-
-    def set_resolution(self, res: str) -> None:
-        """Allows you to set resolution of images in the form of ResXxResY ."""
-        self.client.send_message("/set/resolution", res)
+    def set_resolution(self, resolution: str) -> None:
+        """Allows you to set resolution of images in the form of ResXxResY."""
+        self.client.send_message("/set/resolution", resolution)
 
     def save_image(self, filename: str) -> None:
         """Takes screenshot with the default name."""
         # Unreal Engine Needs a forward / to separate folder from the filenames
         filename = "/".join(filename.rsplit("\\", 1))
         self.client.send_message("/save/image", str(filename))
-        sleep(1.5)
 
     def console(self, message: str) -> None:
-        """Sends messages to be executed in Unreal Engine's console"""
+        """Sends messages to be executed in Unreal Engine's console."""
         self.client.send_message("/console", message)
 
     def toggle_camera_view(self) -> None:
@@ -99,11 +98,10 @@ class Communicator:
         self.client.send_message("/toggle/view", dummy)
 
     def quality(self, graphics_level: int) -> None:
-        """Sets the Game Graphics Settings. Takes an int between 0-4 where 0 is the lowest"""
+        """Set the graphics quality level from 0 (low) to 4 (high)."""
         self.client.send_message("/set/quality", graphics_level)
 
     def reset(self) -> None:
         """Reset agent to the start location using a UE Blueprint command."""
         # The python OSC library send_message method always requires a value
         self.client.send_message("/reset", 0.0)
-        sleep(1)
