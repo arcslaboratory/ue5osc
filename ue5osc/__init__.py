@@ -89,13 +89,6 @@ class Communicator:
         self.client.send_message("/save/image", str(filename))
         sleep(1.5)
 
-    def get_image(self, filename: str) -> bytes:
-        """Requests the image we saved."""
-        from PIL import Image
-
-        image = Image.open(filename)
-        return image
-
     def console(self, message: str) -> None:
         """Sends messages to be executed in Unreal Engine's console"""
         self.client.send_message("/console", message)
@@ -103,11 +96,11 @@ class Communicator:
     def toggle_camera_view(self) -> None:
         """Toggles the camera between 1st and 3rd person views."""
         dummy = 0.0
-        self.client.send_message("/switch/view", dummy)
+        self.client.send_message("/toggle/view", dummy)
 
     def quality(self, graphics_level: int) -> None:
         """Sets the Game Graphics Settings. Takes an int between 0-4 where 0 is the lowest"""
-        self.client.send_message("/quality", graphics_level)
+        self.client.send_message("/set/quality", graphics_level)
 
     def reset(self) -> None:
         """Reset agent to the start location using a UE Blueprint command."""
