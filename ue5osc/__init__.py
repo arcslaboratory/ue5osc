@@ -100,9 +100,10 @@ class Communicator:
         """Sends messages to be executed in Unreal Engine's console"""
         self.client.send_message("/console", message)
 
-    def switch_camera(self) -> None:
-        """Switches between camera views. One where the robot is visible or not"""
-        self.client.send_message("/switch/view", 0.0)
+    def toggle_camera_view(self) -> None:
+        """Toggles the camera between 1st and 3rd person views."""
+        dummy = 0.0
+        self.client.send_message("/switch/view", dummy)
 
     def quality(self, graphics_level: int) -> None:
         """Sets the Game Graphics Settings. Takes an int between 0-4 where 0 is the lowest"""
