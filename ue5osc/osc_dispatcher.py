@@ -49,10 +49,9 @@ class OSCMessageReceiver:
         # Logic to handle invalid commands with an exception.
         raise TypeError(f"Invalid command: {address}")
 
-    def wait_for_response(self, timeout: float = 1.0) -> object:
-        """We wait for values to get assigned and then reset values to None for next check."""
+    def wait_for_response(self, timeout: float = 1.0, time_delta: float = 0.01):
+        """Wait for response from UE and then return the response."""
         time_spent_waiting = 0
-        time_delta = 0.01
         while not self.values and time_spent_waiting < timeout:
             sleep(time_delta)
             time_spent_waiting += time_delta
