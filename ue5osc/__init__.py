@@ -89,7 +89,7 @@ class Communicator:
         self.client.send_message("/save/image", str(filename))
 
     def console(self, message: str) -> None:
-        """Sends messages to be executed in Unreal Engine's console."""
+        """Sends Unreal Engine console commands (only works in development mode)."""
         self.client.send_message("/console", message)
 
     def toggle_camera_view(self) -> None:
