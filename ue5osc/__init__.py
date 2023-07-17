@@ -1,5 +1,4 @@
 import threading
-from time import sleep
 
 from pythonosc import udp_client
 from pythonosc.osc_server import BlockingOSCUDPServer
