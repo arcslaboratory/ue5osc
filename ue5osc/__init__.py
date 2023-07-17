@@ -96,6 +96,19 @@ class Communicator:
         image = Image.open(filename)
         return image
 
+    def console(self, message: str) -> None:
+        """Sends messages to be executed in Unreal Engine's console"""
+        self.client.send_message("/console", message)
+
+    def toggle_camera_view(self) -> None:
+        """Toggles the camera between 1st and 3rd person views."""
+        dummy = 0.0
+        self.client.send_message("/switch/view", dummy)
+
+    def quality(self, graphics_level: int) -> None:
+        """Sets the Game Graphics Settings. Takes an int between 0-4 where 0 is the lowest"""
+        self.client.send_message("/quality", graphics_level)
+
     def reset(self) -> None:
         """Reset agent to the start location using a UE Blueprint command."""
         # The python OSC library send_message method always requires a value
