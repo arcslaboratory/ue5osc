@@ -24,7 +24,7 @@ class Communicator:
         self.server_thread = threading.Thread(target=self.server.serve_forever)
         self.server_thread.start()
 
-    def __enter__(self) -> None:
+    def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback) -> None:
@@ -35,7 +35,7 @@ class Communicator:
         self.server.shutdown()
         self.server_thread.join()
 
-    def send_and_wait(self, osc_address: str) -> str|tuple[float,float,float]:
+    def send_and_await(self, osc_address: str):
         """Sends command and waits for a return value before continuing."""
         dummy_data = 0.0
         self.client.send_message(osc_address, dummy_data)
@@ -43,11 +43,11 @@ class Communicator:
 
     def get_project_name(self) -> str:
         """Returns and optionally prints the name of the current connected project."""
-        return self.send_and_wait("/get/project")
+        return self.send_and_await("/get/project")
 
     def get_location(self) -> tuple[float, float, float]:
         """Returns x, y, z location of the player in the Unreal Environment"""
-        return self.send_and_wait("/get/location")
+        return self.send_and_await("/get/location")
 
     def set_location(self, x: float, y: float, z: float) -> None:
         """Sets X, Y, and Z values of an Unreal Camera."""
@@ -55,7 +55,7 @@ class Communicator:
 
     def get_rotation(self) -> tuple[float, float, float]:
         """Returns pitch, yaw, and roll"""
-        return self.send_and_wait("/get/rotation")
+        return self.send_and_await("/get/rotation")
 
     def set_yaw(self, yaw: float) -> None:
         """Set the camera yaw in degrees."""
