@@ -21,10 +21,13 @@ def main():
     ) as osc_communicator:
         print(osc_communicator.get_location())
         sleep(1)
+        osc_communicator.set_location(110.0, 1.0, 225.0)
+        sleep(1)
+        osc_communicator.save_image("Demo")
+        sleep(1)
+        osc_communicator.rotate_left(90.0)
+        sleep(1)
         print(osc_communicator.get_rotation())
-        sleep(1)
-        print(osc_communicator.get_project_name())
-        sleep(1)
 
 
 # Calling main function
