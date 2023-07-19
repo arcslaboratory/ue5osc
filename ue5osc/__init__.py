@@ -96,7 +96,7 @@ class Communicator:
         dummy = 0.0
         self.client.send_message("/toggle/view", dummy)
 
-    def quality(self, graphics_level: int) -> None:
+    def set_quality(self, graphics_level: int) -> None:
         """Set the graphics quality level from 0 (low) to 4 (high)."""
         self.client.send_message("/set/quality", graphics_level)
 
