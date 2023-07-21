@@ -41,8 +41,16 @@ class Communicator:
         return self.message_handler.wait_for_response()
 
     def get_project_name(self) -> str:
-        """Returns and optionally prints the name of the current connected project."""
+        """Returns the name of the current connected project."""
         return self.send_and_await("/get/project")
+
+    def get_raycast(self) -> str:
+        """Returns the length of the raycast."""
+        return self.send_and_await("/get/raycast")
+
+    def set_raycast(self, length: float) -> None:
+        """Returns the length of the raycast."""
+        self.client.send_message("/set/raycast", float(length))
 
     def get_location(self) -> tuple[float, float, float]:
         """Returns x, y, z location of the player in the Unreal Environment."""
@@ -53,7 +61,7 @@ class Communicator:
         self.client.send_message("/set/location", [x, y, z])
 
     def get_rotation(self) -> tuple[float, float, float]:
-        """Returns pitch, yaw, and roll."""
+        """Returns roll, pitch, and yaw."""
         return self.send_and_await("/get/rotation")
 
     def set_yaw(self, yaw: float) -> None:
