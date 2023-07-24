@@ -67,7 +67,7 @@ class Communicator:
     def set_yaw(self, yaw: float) -> None:
         """Set the camera yaw in degrees."""
         ue_roll, ue_pitch, _ = self.get_rotation()
-        self.client.send_message("/set/rotation", [ue_pitch, ue_roll, yaw])
+        self.client.send_message("/set/rotation", [ue_roll, ue_pitch, yaw])
 
     def move_forward(self, amount: float) -> None:
         """Move robot forward."""
@@ -107,6 +107,10 @@ class Communicator:
     def set_quality(self, graphics_level: int) -> None:
         """Set the graphics quality level from 0 (low) to 4 (high)."""
         self.client.send_message("/set/quality", graphics_level)
+
+    def set_texture(self, object: int, material: int) -> None:
+        """Set the texture of walls/floors/ceilings to a different material"""
+        self.client.send_message("/set/texture", [object, material])
 
     def reset(self) -> None:
         """Reset agent to the start location using a UE Blueprint command."""
