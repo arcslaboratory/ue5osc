@@ -4,6 +4,13 @@ from pythonosc import udp_client
 from pythonosc.osc_server import BlockingOSCUDPServer
 
 from ue5osc.osc_dispatcher import OSCMessageReceiver
+from enum import IntEnum
+
+
+class ObjectType(IntEnum):
+    FLOOR = 0
+    WALL = 1
+    CEILING = 2
 
 
 class Communicator:
@@ -45,11 +52,13 @@ class Communicator:
         return self.send_and_await("/get/project")
 
     def get_raycast(self) -> str:
-        """Returns the length of the raycast."""
+        """Returns the length of the raycast. We use this in order to decide whether a
+        movement forward is valid. If the raycast returns a value other than 0 it means
+        the robot would hit the wall."""
         return self.send_and_await("/get/raycast")
 
-    def set_raycast(self, length: float) -> None:
-        """Returns the length of the raycast."""
+    def set_raycast_length(self, length: float) -> None:
+        """Sets the length of the raycast."""
         self.client.send_message("/set/raycast", float(length))
 
     def get_location(self) -> tuple[float, float, float]:
@@ -65,7 +74,7 @@ class Communicator:
         return self.send_and_await("/get/rotation")
 
     def set_yaw(self, yaw: float) -> None:
-        """Set the camera yaw in degrees."""
+        """Set the robot's yaw in relation to the global coordinate frame."""
         ue_roll, ue_pitch, _ = self.get_rotation()
         self.client.send_message("/set/rotation", [ue_roll, ue_pitch, yaw])
 
@@ -108,7 +117,7 @@ class Communicator:
         """Set the graphics quality level from 0 (low) to 4 (high)."""
         self.client.send_message("/set/quality", graphics_level)
 
-    def set_texture(self, object: int, material: int) -> None:
+    def set_texture(self, object: ObjectType, material: int) -> None:
         """Set the texture of walls/floors/ceilings to a different material"""
         self.client.send_message("/set/texture", [object, material])
 
