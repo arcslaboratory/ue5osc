@@ -7,7 +7,7 @@ from ue5osc.osc_dispatcher import OSCMessageReceiver
 from enum import IntEnum
 
 
-class ObjectType(IntEnum):
+class TexturedSurface(IntEnum):
     FLOOR = 0
     WALL = 1
     CEILING = 2
@@ -51,7 +51,7 @@ class Communicator:
         """Returns the name of the current connected project."""
         return self.send_and_await("/get/project")
 
-    def get_raycast(self) -> str:
+    def get_raycast_distance(self) -> float:
         """Returns the length of the raycast. We use this in order to decide whether a
         movement forward is valid. If the raycast returns a value other than 0 it means
         the robot would hit the wall."""
@@ -117,7 +117,7 @@ class Communicator:
         """Set the graphics quality level from 0 (low) to 4 (high)."""
         self.client.send_message("/set/quality", graphics_level)
 
-    def set_texture(self, object: ObjectType, material: int) -> None:
+    def set_texture(self, object: TexturedSurface, material: int) -> None:
         """Set the texture of walls/floors/ceilings to a different material"""
         self.client.send_message("/set/texture", [object, material])
 
