@@ -13,6 +13,7 @@ class OSCMessageReceiver:
         self.dispatcher.map("/location", self.handle_location)
         self.dispatcher.map("/rotation", self.handle_rotation)
         self.dispatcher.map("/project", self.handle_project)
+        self.dispatcher.map("/raycast", self.handle_raycast)
         self.dispatcher.set_default_handler(self.handle_invalid_command)
 
     def handle_location(
@@ -43,6 +44,13 @@ class OSCMessageReceiver:
             if not len(args) == 1 or type(args[0]) is not str:
                 return
             self.values = args[0]
+            return self.values
+
+    def handle_raycast(self, address: str, *args: List[Any]) -> float:
+        if address == "/raycast":
+            values = args[0]
+            raycast = float(values)
+            self.values = raycast
             return self.values
 
     def handle_invalid_command(self, address, *args) -> None:

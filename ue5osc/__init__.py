@@ -4,6 +4,13 @@ from pythonosc import udp_client
 from pythonosc.osc_server import BlockingOSCUDPServer
 
 from ue5osc.osc_dispatcher import OSCMessageReceiver
+from enum import IntEnum
+
+
+class TexturedSurface(IntEnum):
+    FLOOR = 0
+    WALL = 1
+    CEILING = 2
 
 
 class Communicator:
@@ -41,8 +48,18 @@ class Communicator:
         return self.message_handler.wait_for_response()
 
     def get_project_name(self) -> str:
-        """Returns and optionally prints the name of the current connected project."""
+        """Returns the name of the current connected project."""
         return self.send_and_await("/get/project")
+
+    def get_raycast_distance(self) -> float:
+        """Returns the length of the raycast. We use this in order to decide whether a
+        movement forward is valid. If the raycast returns a value other than 0 it means
+        the robot would hit the wall."""
+        return self.send_and_await("/get/raycast")
+
+    def set_raycast_length(self, length: float) -> None:
+        """Sets the length of the raycast."""
+        self.client.send_message("/set/raycast", float(length))
 
     def get_location(self) -> tuple[float, float, float]:
         """Returns x, y, z location of the player in the Unreal Environment."""
@@ -53,13 +70,13 @@ class Communicator:
         self.client.send_message("/set/location", [x, y, z])
 
     def get_rotation(self) -> tuple[float, float, float]:
-        """Returns pitch, yaw, and roll."""
+        """Returns roll, pitch, and yaw."""
         return self.send_and_await("/get/rotation")
 
     def set_yaw(self, yaw: float) -> None:
-        """Set the camera yaw in degrees."""
+        """Set the robot's yaw in relation to the global coordinate frame."""
         ue_roll, ue_pitch, _ = self.get_rotation()
-        self.client.send_message("/set/rotation", [ue_pitch, ue_roll, yaw])
+        self.client.send_message("/set/rotation", [ue_roll, ue_pitch, yaw])
 
     def move_forward(self, amount: float) -> None:
         """Move robot forward."""
@@ -99,6 +116,10 @@ class Communicator:
     def set_quality(self, graphics_level: int) -> None:
         """Set the graphics quality level from 0 (low) to 4 (high)."""
         self.client.send_message("/set/quality", graphics_level)
+
+    def set_texture(self, object: TexturedSurface, material: int) -> None:
+        """Set the texture of walls/floors/ceilings to a different material"""
+        self.client.send_message("/set/texture", [object, material])
 
     def reset(self) -> None:
         """Reset agent to the start location using a UE Blueprint command."""

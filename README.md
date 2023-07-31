@@ -1,6 +1,6 @@
 # ue5osc
 
-This is a wrapper for communicating commands to Unreal Engine 5+ using OSC.
+This is a wrapper for communicating commands and receiving information to and from Unreal Engine 5+ using OSC.
 
 To install the package locally:
 
