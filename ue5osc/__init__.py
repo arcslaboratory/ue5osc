@@ -73,10 +73,12 @@ class Communicator:
         """Returns roll, pitch, and yaw."""
         return self.send_and_await("/get/rotation")
 
+    def set_rotation(self, roll: float, pitch: float, yaw: float) -> None:
+        self.client.send_message("/set/rotation", [roll, pitch, yaw])
+
     def set_yaw(self, yaw: float) -> None:
         """Set the robot's yaw in relation to the global coordinate frame."""
-        ue_roll, ue_pitch, _ = self.get_rotation()
-        self.client.send_message("/set/rotation", [ue_roll, ue_pitch, yaw])
+        self.client.send_message("/set/yaw", yaw)
 
     def move_forward(self, amount: float) -> None:
         """Move robot forward."""

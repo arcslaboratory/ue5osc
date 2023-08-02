@@ -19,15 +19,9 @@ def main():
         args.ue_port,
         args.py_port,
     ) as osc_communicator:
-        print(osc_communicator.get_location())
-        sleep(1)
-        osc_communicator.set_location(110.0, 1.0, 225.0)
-        sleep(1)
-        osc_communicator.save_image("Demo")
-        sleep(1)
-        osc_communicator.rotate_left(90.0)
-        sleep(1)
-        print(osc_communicator.get_rotation())
+        for i in range(361):
+            osc_communicator.set_yaw(i + 1.0)
+            sleep(0.1)
 
 
 # Calling main function
