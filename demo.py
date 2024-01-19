@@ -11,6 +11,8 @@ def main():
     parser.add_argument("--ip", type=str, default="127.0.0.1", help="IP Address")
     parser.add_argument("--ue_port", type=int, default=7447, help="UE server port.")
     parser.add_argument("--py_port", type=int, default=7001, help="Python server port.")
+    parser.add_argument("--resolution", type=str, default="1280x720", help="Resolution")
+    parser.add_argument("--save_image", type=str,  help="Image path")
 
     args = parser.parse_args()
 
@@ -19,9 +21,16 @@ def main():
         args.ue_port,
         args.py_port,
     ) as osc_communicator:
-        for i in range(361):
+        for i in range(36):
             osc_communicator.set_yaw(i + 1.0)
             sleep(0.1)
+
+        if args.save_image:
+            osc_communicator.set_resolution(args.resolution)
+            sleep(1)
+            osc_communicator.save_image(args.save_image)
+
+    print("Done!")
 
 
 # Calling main function

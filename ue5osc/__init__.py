@@ -98,6 +98,7 @@ class Communicator:
 
     def set_resolution(self, resolution: str) -> None:
         """Allows you to set resolution of images in the form of ResXxResY."""
+        # TODO: need to delay after this message to allow for the resolution to change
         self.client.send_message("/set/resolution", resolution)
 
     def save_image(self, filename: str) -> None:
